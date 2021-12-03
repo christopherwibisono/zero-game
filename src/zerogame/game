@@ -1,0 +1,136 @@
+package zerogame;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
+import javax.swing.*;
+
+public class game extends SavingLoading implements ActionListener {
+	protected static playerStatus np = new playerStatus(null , 0, 0);
+	protected static JFrame frame = new JFrame();
+	protected static JPanel panel = new JPanel();
+	protected static JLabel maker = new JLabel("Music : Pokemon Alpha Sapphire - Littleroot Town | Game made by : Christopher Wibisono - 2301913822");
+	protected static JButton ne;
+	protected static JButton lo;
+	protected static JButton ext;
+	protected static JTextField txt = new JTextField(10);
+	protected static JLabel plname;
+	File snd = new File("sound/1.wav");
+	Clip player;
+	AudioInputStream play;
+	private void AudioPlayer() {
+		try {
+			play = AudioSystem.getAudioInputStream(snd);
+			player = AudioSystem.getClip();
+			player.open(play);
+			FloatControl vol = (FloatControl) player.getControl(FloatControl.Type.MASTER_GAIN);
+			float volum = (float) (Math.log(0.05)/Math.log(10)*20);
+			vol.setValue(volum);
+			player.start();
+			player.loop(Clip.LOOP_CONTINUOUSLY);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	public game() {
+		ne = new JButton("New Game");
+		lo = new JButton("Load Game");
+		
+		ext = new JButton("Exit");
+		ne.addActionListener(this);
+		lo.addActionListener(this);
+		ext.addActionListener(this);
+		
+		AudioPlayer();
+		panel.setBorder(BorderFactory.createEmptyBorder(300, 300, 100, 300));
+		panel.setLayout(new GridLayout(1, 1));
+		panel.add(ne);
+		panel.add(lo);
+		panel.add(ext);
+		panel.setOpaque(true);
+		panel.setBackground(Color.green);
+		
+		frame.setResizable(false);
+		frame.add(maker, BorderLayout.AFTER_LAST_LINE);
+		frame.add(panel, BorderLayout.CENTER);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle("Zeroes Adventure");
+		frame.pack();
+		frame.setVisible(true);
+	}
+	
+	public static void main(String[] args) {
+		new game();
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		frame.remove(maker);
+		if(e.getSource() == ext)
+		{
+			System.exit(0);
+		}
+		else if(e.getSource() == ne)
+		{
+			nep = 1;
+			panel.removeAll();
+			panel.setVisible(false);
+			GenerateName();
+		}
+		else if(e.getSource() == lo)
+		{
+			panel.removeAll();
+			np = loadFile();
+		}
+	}
+	
+	public static void GenerateName() {
+		JButton con = new JButton("Confirm");
+		JLabel ll = new JLabel("Name [10 max] : ");
+		JFrame trya = new JFrame();
+		trya.setVisible(false);
+		panel.add(ll);
+		panel.add(txt);
+		panel.add(con);
+		panel.updateUI();
+		panel.setVisible(true);
+		con.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				np.setName(txt.getText());
+				if(!np.getName().isEmpty() && np.getName().length() <= 10)
+				{
+					runthread();
+				}
+				else
+				{
+					JPanel tryx = new JPanel();
+					txt.setText(null);
+					
+					tryx.setBorder(BorderFactory.createEmptyBorder(100, 100, 100, 100));
+					tryx.setLayout(new GridLayout(0, 1));
+					tryx.add(new JLabel("Name not available!"));
+					tryx.add(new JLabel("Try Again!"));
+					
+					trya.add(tryx, BorderLayout.CENTER);
+					trya.setTitle("Try Again!");
+					trya.pack();
+					trya.setVisible(true);
+				}
+			}
+		});
+	}
+	
+	public static void runthread() {
+		panel.removeAll();
+		panel.setVisible(true);
+		new Threading();
+	}
+}
